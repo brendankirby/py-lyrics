@@ -47,7 +47,7 @@ with open('keywords.txt', 'r') as file:
 pattern = re.compile(r'\b(' + '|'.join(map(re.escape, [kw.lower() for kw in all_keywords])) + r')\b')
 
 def scrape_song(song_url):
-    """Scrape lyrics, song title, and matched keywords from a single song URL."""
+    """Scrape lyrics, song title, artist, album, and matched keywords from a single song URL."""
     time.sleep(2)  # 2-second delay before request
     response = requests.get(song_url)
     response.raise_for_status()
@@ -56,6 +56,14 @@ def scrape_song(song_url):
     # Get the song title from the first h1 element
     song_title = soup.find('h1')
     song_title_text = song_title.get_text(strip=True) if song_title else "Unknown Title"
+    
+    # Get the artist name from the display text of the first link with /artists/
+    artist_link = soup.find('a', href=re.compile('/artists/'))
+    artist_name = artist_link.get_text(strip=True) if artist_link else "Unknown Artist"
+    
+    # Get the album name from the display text of the link with href="#primary-album"
+    album_link = soup.find('a', href="#primary-album")
+    album_name = album_link.get_text(strip=True) if album_link else "Unknown Album"
     
     lyrics_containers = soup.find_all('div', {'data-lyrics-container': 'true'})
     text_content = ''
@@ -74,7 +82,7 @@ def scrape_song(song_url):
             matches[line].update(found)
             matched_keywords.update(found)  # Add found keywords to the set
     
-    return song_title_text, matches, matched_keywords
+    return song_title_text, matches, matched_keywords, artist_name, album_name
 
 def scrape_album(album_url):
     """Scrape lyrics from all songs linked on an album page, get album title and artist."""
@@ -108,8 +116,7 @@ def scrape_album(album_url):
         current_song += 1
         print(f"👀 {BOLD}Scraping song ({current_song}/{total_songs}):{RESET} {url}", end='', flush=True)
         try:
-            song_title, song_matches, matched_keywords = scrape_song(url)
-            # Overwrite with ✅ on success
+            song_title, song_matches, matched_keywords, _, _ = scrape_song(url)  # Ignore song-level artist and album
             print(f"\r✅ {BOLD}Scraping song ({current_song}/{total_songs}):{RESET} {url}")
             if song_matches:
                 all_matches[song_title] = song_matches
@@ -175,7 +182,7 @@ results = []  # List to store all results for CSV
 output_lines = []  # List to store match lines for output.txt
 if args.song:
     print(f"{BOLD}\nScraping song:{RESET} {args.song}")
-    song_title, matches, matched_keywords = scrape_song(args.song)
+    song_title, matches, matched_keywords, artist_name, album_name = scrape_song(args.song)
     if matches:
         max_keyword_length = max(len(kw) for kw in matched_keywords) if matched_keywords else 0
         print(f"\n{BOLD}{song_title}{RESET}")
@@ -190,8 +197,8 @@ if args.song:
                     'Keyword': keyword,
                     'Lyrics': line,
                     'Song': song_title,
-                    'Album': '',  # Blank for song path
-                    'Artist': ''  # Blank for song path
+                    'Album': album_name,  # Use inferred album name
+                    'Artist': artist_name  # Use inferred artist name
                 })
     else:
         print(f"\n{BOLD}{song_title}{RESET}")

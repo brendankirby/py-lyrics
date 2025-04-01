@@ -113,7 +113,6 @@ exotic
 foreign
 horsepower
 speed
-luxury
 car
 carbon
 whip
