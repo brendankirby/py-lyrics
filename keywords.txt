@@ -113,9 +113,12 @@ exotic
 foreign
 horsepower
 speed
+speeding
 car
 carbon
 whip
+whippin
+whipping
 hop out
 hoppin out
 hopping out
@@ -124,6 +127,7 @@ drop top
 drop the top
 spyder
 drift
+drifting
 burnout
 race
 racing
@@ -147,6 +151,7 @@ gas station
 torque
 rev
 exhaust
+engine
 revving
 revs
 rear wheel

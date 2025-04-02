@@ -105,7 +105,7 @@ def scrape_album(album_url):
     song_urls = {link['href'] if link['href'].startswith('http') else f"https://genius.com{link['href']}" 
                  for link in song_links if link['href'].endswith('-lyrics') and artist_url_part in link['href'].lower()}
     
-    print(f"\n{BOLD}Found song links ending with '-lyrics':{RESET}")
+    print(f"\n{BOLD}Found song links:{RESET}")
     total_songs = len(song_urls)
     for url in song_urls:
         print(url)
@@ -148,7 +148,7 @@ def scrape_artist_albums(artist_url):
     all_albums_matches = {}
     all_matched_keywords = set()  # Track matched keywords across all albums
     for album_url in unique_album_urls:
-        print(f"{BOLD}Scraping album:{RESET} {album_url}")
+        print(f"{BOLD}\nScraping album:{RESET} {album_url}")
         try:
             artist_name, album_title, album_matches, album_matched_keywords = scrape_album(album_url)  # Delay inside scrape_album
             if album_matches:
