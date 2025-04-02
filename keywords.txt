@@ -116,7 +116,9 @@ speed
 car
 carbon
 whip
-ride
+hop out
+hoppin out
+hopping out
 drop-top
 drop top
 drop the top

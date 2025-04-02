@@ -95,13 +95,15 @@ def scrape_album(album_url):
     album_title = soup.find('h1')
     album_title_text = soup.find('h1').get_text(strip=True) if album_title else "Unknown Album"
     
-    # Get the artist name from the first h2 element
+    # Get the artist name from the first h2 element and normalize for URL matching
     artist = soup.find('h2')
     artist_name = artist.get_text(strip=True) if artist else "Unknown Artist"
+    artist_url_part = artist_name.lower().replace(' ', '-')  # e.g., "Yo Gotti" -> "yo-gotti"
     
+    # Find song URLs containing the artist name and ending with -lyrics
     song_links = soup.select('a[href]')
     song_urls = {link['href'] if link['href'].startswith('http') else f"https://genius.com{link['href']}" 
-                 for link in song_links if link['href'].endswith('-lyrics')}
+                 for link in song_links if link['href'].endswith('-lyrics') and artist_url_part in link['href'].lower()}
     
     print(f"\n{BOLD}Found song links ending with '-lyrics':{RESET}")
     total_songs = len(song_urls)
@@ -197,8 +199,8 @@ if args.song:
                     'Keyword': keyword,
                     'Lyrics': line,
                     'Song': song_title,
-                    'Album': album_name,  # Use inferred album name
-                    'Artist': artist_name  # Use inferred artist name
+                    'Album': album_name,
+                    'Artist': artist_name
                 })
     else:
         print(f"\n{BOLD}{song_title}{RESET}")
